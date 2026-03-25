@@ -1,0 +1,5 @@
+{
+  "auto-gdb": {
+    "command": "${CLAUDE_PLUGIN_ROOT}/bin/auto-gdb"
+  }
+}

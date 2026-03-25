@@ -1,0 +1,23 @@
+# Go
+/auto-gdb
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# IDE
+.cursor/
+
+# Build artifacts
+build/
+dist/
+
+# Logs
+*.log
+
+# Test cache
+.pytest_cache/
