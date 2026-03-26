@@ -72,7 +72,7 @@ Ask user which mode:
 | Mode | When to Use | What You Need |
 |------|-------------|---------------|
 | **Subprocess** | Starting fresh investigation | Binary path, optionally coredump path |
-| **Socket** | User already has GDB running | Socket path (user ran `auto-gdb listen`) |
+| **Socket** | User already has GDB running and listening on domain socket | Socket path (user ran `auto-gdb listen`) |
 
 ### 1.2 Session Setup
 
@@ -88,7 +88,7 @@ gdb_command: "core /path/to/coredump"  # if applicable
 create_session(socket_path="/path/to/socket")
 ```
 
-**Note:** In **socket** mode, the inferior's stdout and stderr are not captured through the auto-gdb/MCP connection. Redirect program output to files when starting it (e.g. when using `run`), then read those files via GDB `shell` (e.g. `shell cat`, `shell tail`).
+**Note:** In **socket** mode, inferior and `shell` stdout/stderr do not reach MCP. Redirect on `run` to a file, then read that file with your tools (not `shell cat`).
 
 ### 1.3 Acquire Source Code
 
