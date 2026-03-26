@@ -29,7 +29,7 @@ Then install the plugin:
 **When releasing a new version:**
 1. Run `./release.sh` to build binaries for both architectures
 2. Commit the updated binaries in `plugins/auto-gdb/bin/`
-3. Bump the plugin versions in `marketplace.json` and `plugins/auto-gdb/plugin.json`
+3. Bump the plugin versions in **both** `plugins/auto-gdb/plugin.json` **and** `.claude-plugin/marketplace.json`
 4. Create the corresponding git tag and push it
 
 Binaries are included in the repository, so no separate release assets are needed.
