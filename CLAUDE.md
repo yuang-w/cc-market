@@ -41,3 +41,19 @@ The auto-gdb plugin provides GDB-based debugging for production coredump analysi
 The plugin supports two GDB modes:
 - **Subprocess mode**: MCP spawns and controls GDB directly
 - **Socket mode**: User runs GDB with bridge loaded, MCP connects via socket
+
+## Offline Installation
+
+For machines without network access to GitHub, auto-gdb can be installed from a tar.gz package:
+
+1. Download `auto-gdb-<version>-linux.tar.gz` from [GitHub Releases](https://github.com/yuang-w/cc-market/releases)
+2. Copy to the target machine
+3. Extract and install:
+   ```bash
+   tar -xzf auto-gdb-<version>-linux.tar.gz
+   cd auto-gdb-<version>-linux
+   ./install.sh
+   ```
+4. (Optional) Delete the extracted directory
+
+The install.sh script handles all setup using official Claude CLI commands.
