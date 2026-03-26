@@ -26,7 +26,7 @@ var (
 
 type createSessionInput struct {
 	SocketPath string  `json:"socket_path" jsonschema:"optional Unix socket path; empty for subprocess mode"`
-	Cwd        string  `json:"cwd" jsonschema:"optional working directory for subprocess mode"`
+	Cwd        string  `json:"cwd" jsonschema:"optional working directory for subprocess mode; defaults to current directory; no  effect in socket mode"`
 	TimeoutSec float64 `json:"timeout_sec" jsonschema:"timeout in seconds for session creation"`
 }
 

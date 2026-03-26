@@ -16,6 +16,19 @@ Then install the plugin:
 /plugin install auto-gdb
 ```
 
+## Offline Installation
+
+For network-isolated environments, install from a tar.gz package:
+
+1. Download `auto-gdb-<version>-linux.tar.gz` from [GitHub Releases](https://github.com/yuang-w/cc-market/releases) on a connected machine
+2. Copy to the target machine
+3. Extract and install:
+   ```bash
+   tar -xzf auto-gdb-<version>-linux.tar.gz
+   cd auto-gdb-<version>-linux
+   ./install.sh
+   ```
+
 ## What's Included
 
 - **MCP server** (`auto-gdb`) - GDB control via MCP
