@@ -1,0 +1,88 @@
+name: Release Offline Package
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Get version
+        id: version
+        run: |
+          # Extract version from plugin.json
+          VERSION=$(grep '"version"' plugins/auto-gdb/plugin.json | head -1 | sed 's/.*: *"\([^"]*\)".*/\1/')
+          if [ -z "$VERSION" ]; then
+            echo "::error::Failed to extract version from plugin.json"
+            exit 1
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build binaries
+        run: |
+          cd plugins/auto-gdb/src
+          make build-all
+
+      - name: Assemble package
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          PKG_DIR="auto-gdb-${VERSION}-linux"
+
+          mkdir -p "${PKG_DIR}/.claude-plugin"
+          mkdir -p "${PKG_DIR}/plugins/auto-gdb"
+
+          # Marketplace manifest
+          cat > "${PKG_DIR}/.claude-plugin/marketplace.json" << EOF
+          {
+            "name": "auto-gdb-offline",
+            "description": "auto-gdb offline installation package",
+            "owner": {
+              "name": "yuang-w"
+            },
+            "plugins": [
+              {
+                "name": "auto-gdb",
+                "description": "GDB-based debugging MCP server with investigation skill for production coredump analysis",
+                "version": "${VERSION}",
+                "source": "./plugins/auto-gdb",
+                "author": {
+                  "name": "yuang-w"
+                }
+              }
+            ]
+          }
+          EOF
+
+          # Plugin files
+          cp plugins/auto-gdb/plugin.json "${PKG_DIR}/plugins/auto-gdb/"
+          cp plugins/auto-gdb/.mcp.json "${PKG_DIR}/plugins/auto-gdb/"
+          cp -r plugins/auto-gdb/bin "${PKG_DIR}/plugins/auto-gdb/"
+          cp -r plugins/auto-gdb/bridge "${PKG_DIR}/plugins/auto-gdb/"
+          cp -r plugins/auto-gdb/skills "${PKG_DIR}/plugins/auto-gdb/"
+          cp -r plugins/auto-gdb/hooks "${PKG_DIR}/plugins/auto-gdb/"
+
+          # Install script and README
+          cp plugins/auto-gdb/install.sh "${PKG_DIR}/"
+          cp plugins/auto-gdb/README.txt "${PKG_DIR}/"
+
+          # Create tar.gz
+          tar -czvf "${PKG_DIR}.tar.gz" "${PKG_DIR}"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: auto-gdb-*.tar.gz
+          generate_release_notes: true
