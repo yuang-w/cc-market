@@ -40,11 +40,12 @@ def _install_auto_gdb_command():
 
         Usage::
 
-            auto-gdb listen <socket_path> [--echo]
+            auto-gdb listen <socket_path> [-s]
             auto-gdb stop
 
         * ``listen`` — MCP clients connect via the Unix socket.
-        * ``--echo`` — mirror MCP command CLI output to this GDB terminal.
+        * By default, MCP command CLI output is mirrored to this GDB terminal.
+        * ``-s`` — silent; do not mirror MCP output to the GDB terminal.
         """
 
         def __init__(self):
@@ -58,8 +59,8 @@ def _install_auto_gdb_command():
             self.listen_path = None
             self.stop_event = threading.Event()
             self.gdb_cmd_lock = threading.Lock()
-            # Set when ``auto-gdb listen`` runs: if True, mirror MCP command output to the GDB TTY.
-            self.mirror_mcp_output_to_tty = False
+            # When True (default), mirror MCP command CLI output to the GDB TTY; ``listen -s`` turns it off.
+            self.mirror_mcp_output_to_tty = True
 
         def _execute_cli_on_gdb_thread(self, cli_cmd, timeout_sec):
             ev = threading.Event()
@@ -82,6 +83,15 @@ def _install_auto_gdb_command():
 
             timed_out = not ev.wait(timeout_sec)
             if timed_out:
+                # gdb.execute runs on GDB's main thread; we cannot cancel the Python
+                # closure directly. gdb.interrupt() (GDB 14+, thread-safe) asks GDB to
+                # abort the current operation like Ctrl-C. Older GDB: only wait for finish.
+                intr = getattr(gdb, "interrupt", None)
+                if callable(intr):
+                    try:
+                        intr()
+                    except Exception:  # noqa: BLE001 — best-effort; still sync below
+                        pass
                 ev.wait()
                 return "", "timeout waiting for gdb response"
 
@@ -207,7 +217,7 @@ def _install_auto_gdb_command():
 
             if len(parts) > 2:
                 gdb.write(
-                    "auto-gdb listen: too many arguments (expected <socket_path> [--echo])\n",
+                    "auto-gdb listen: too many arguments (expected <socket_path> [-s])\n",
                     gdb.STDERR,
                 )
                 self._write_command_doc()
@@ -215,16 +225,16 @@ def _install_auto_gdb_command():
 
             path = parts[0].strip()
             if len(parts) == 2:
-                if parts[1].lower() != "--echo":
+                if parts[1] != "-s":
                     gdb.write(
-                        "auto-gdb listen: unknown argument {!r} (expected --echo)\n".format(parts[1]),
+                        "auto-gdb listen: unknown argument {!r} (expected -s)\n".format(parts[1]),
                         gdb.STDERR,
                     )
                     self._write_command_doc()
                     return
-                self.mirror_mcp_output_to_tty = True
-            else:
                 self.mirror_mcp_output_to_tty = False
+            else:
+                self.mirror_mcp_output_to_tty = True
 
             if not path:
                 self._write_command_doc()
@@ -301,7 +311,7 @@ def _install_auto_gdb_command():
                     pass
 
             gdb.write("auto-gdb stop: stopped\n", gdb.STDOUT)
-            self.mirror_mcp_output_to_tty = False
+            self.mirror_mcp_output_to_tty = True
 
 
     AutoGdb()
