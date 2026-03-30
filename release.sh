@@ -8,4 +8,4 @@ cd "${SCRIPT_DIR}/plugins/auto-gdb/src"
 make build-all
 
 echo "Build complete."
-ls -la ../bin/auto-gdb-linux-*
+ls -la ../bin/auto-gdb-Linux-*

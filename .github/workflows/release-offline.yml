@@ -39,7 +39,7 @@ jobs:
       - name: Assemble package
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          PKG_DIR="auto-gdb-${VERSION}-linux"
+          PKG_DIR="auto-gdb-${VERSION}-Linux"
 
           mkdir -p "${PKG_DIR}/.claude-plugin"
           mkdir -p "${PKG_DIR}/plugins/auto-gdb"
@@ -55,7 +55,7 @@ jobs:
             "plugins": [
               {
                 "name": "auto-gdb",
-                "description": "GDB-based debugging MCP server with investigation skill for production coredump analysis",
+                "description": "GDB-based debugging MCP server with investigation skill",
                 "version": "${VERSION}",
                 "source": "./plugins/auto-gdb",
                 "author": {
