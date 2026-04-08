@@ -30,10 +30,6 @@ type createSessionInput struct {
 	TimeoutSec float64 `json:"timeout_sec" jsonschema:"timeout in seconds for session creation"`
 }
 
-type sessionStatusInput struct{}
-
-type stopSessionInput struct{}
-
 type gdbCommandInput struct {
 	Command    string  `json:"command" jsonschema:"the GDB CLI command to execute"`
 	TimeoutSec float64 `json:"timeout_sec" jsonschema:"timeout in seconds for the command"`
@@ -155,7 +151,7 @@ func runAutoConfig(ctrl gdb.Controller, timeout time.Duration) {
 	}
 }
 
-func sessionStatusHandler(ctx context.Context, req *mcp.CallToolRequest, args sessionStatusInput) (*mcp.CallToolResult, sessionStatusOutput, error) {
+func sessionStatusHandler(ctx context.Context, req *mcp.CallToolRequest, _ any) (*mcp.CallToolResult, sessionStatusOutput, error) {
 	ctrlMu.Lock()
 	defer ctrlMu.Unlock()
 
@@ -170,7 +166,7 @@ func sessionStatusHandler(ctx context.Context, req *mcp.CallToolRequest, args se
 	return nil, sessionStatusOutput{Alive: alive}, nil
 }
 
-func stopSessionHandler(ctx context.Context, req *mcp.CallToolRequest, args stopSessionInput) (*mcp.CallToolResult, stopSessionOutput, error) {
+func stopSessionHandler(ctx context.Context, req *mcp.CallToolRequest, _ any) (*mcp.CallToolResult, stopSessionOutput, error) {
 	ctrlMu.Lock()
 	defer ctrlMu.Unlock()
 
@@ -230,6 +226,12 @@ func main() {
 	}, opts)
 
 	// Register tools
+	// Empty input schema with explicit properties for compatibility with clients that require it
+	emptyInputSchema := map[string]any{
+		"type":       "object",
+		"properties": map[string]any{},
+	}
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "create_session",
 		Description: "Create or replace the GDB session (subprocess or Unix socket). Returns mode, banner; socket_path in socket mode.",
@@ -238,11 +240,13 @@ func main() {
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "session_status",
 		Description: "Check if the current GDB session is still alive. Returns alive (bool), optional error.",
+		InputSchema: emptyInputSchema,
 	}, sessionStatusHandler)
 
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "stop_session",
 		Description: "Shut down the GDB session and clear it. Returns stopped (bool), optional error.",
+		InputSchema: emptyInputSchema,
 	}, stopSessionHandler)
 
 	mcp.AddTool(server, &mcp.Tool{
