@@ -6,10 +6,10 @@
   },
   "plugins": [
     {
-      "name": "auto-gdb",
+      "name": "autogdb",
       "description": "GDB-based debugging MCP server with investigation skill for production coredump analysis",
-      "version": "1.0.7",
-      "source": "./plugins/auto-gdb",
+      "version": "1.0.8",
+      "source": "./plugins/autogdb",
       "author": {
         "name": "yuang-w"
       }

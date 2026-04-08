@@ -25,7 +25,7 @@ jobs:
         id: version
         run: |
           # Extract version from plugin.json
-          VERSION=$(grep '"version"' plugins/auto-gdb/plugin.json | head -1 | sed 's/.*: *"\([^"]*\)".*/\1/')
+          VERSION=$(grep '"version"' plugins/autogdb/plugin.json | head -1 | sed 's/.*: *"\([^"]*\)".*/\1/')
           if [ -z "$VERSION" ]; then
             echo "::error::Failed to extract version from plugin.json"
             exit 1
@@ -34,31 +34,31 @@ jobs:
 
       - name: Build binaries
         run: |
-          cd plugins/auto-gdb/src
+          cd plugins/autogdb/src
           make build-all
 
       - name: Assemble package
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          PKG_DIR="auto-gdb-${VERSION}-Linux"
+          PKG_DIR="autogdb-${VERSION}-Linux"
 
           mkdir -p "${PKG_DIR}/.claude-plugin"
-          mkdir -p "${PKG_DIR}/plugins/auto-gdb"
+          mkdir -p "${PKG_DIR}/plugins/autogdb"
 
           # Marketplace manifest
           cat > "${PKG_DIR}/.claude-plugin/marketplace.json" << EOF
           {
-            "name": "auto-gdb-offline",
-            "description": "auto-gdb offline installation package",
+            "name": "autogdb-offline",
+            "description": "autogdb offline installation package",
             "owner": {
               "name": "yuang-w"
             },
             "plugins": [
               {
-                "name": "auto-gdb",
+                "name": "autogdb",
                 "description": "GDB-based debugging MCP server with investigation skill",
                 "version": "${VERSION}",
-                "source": "./plugins/auto-gdb",
+                "source": "./plugins/autogdb",
                 "author": {
                   "name": "yuang-w"
                 }
@@ -68,16 +68,16 @@ jobs:
           EOF
 
           # Plugin files
-          cp plugins/auto-gdb/plugin.json "${PKG_DIR}/plugins/auto-gdb/"
-          cp plugins/auto-gdb/.mcp.json "${PKG_DIR}/plugins/auto-gdb/"
-          cp -r plugins/auto-gdb/bin "${PKG_DIR}/plugins/auto-gdb/"
-          cp -r plugins/auto-gdb/bridge "${PKG_DIR}/plugins/auto-gdb/"
-          cp -r plugins/auto-gdb/skills "${PKG_DIR}/plugins/auto-gdb/"
-          cp -r plugins/auto-gdb/hooks "${PKG_DIR}/plugins/auto-gdb/"
+          cp plugins/autogdb/plugin.json "${PKG_DIR}/plugins/autogdb/"
+          cp plugins/autogdb/.mcp.json "${PKG_DIR}/plugins/autogdb/"
+          cp -r plugins/autogdb/bin "${PKG_DIR}/plugins/autogdb/"
+          cp -r plugins/autogdb/bridge "${PKG_DIR}/plugins/autogdb/"
+          cp -r plugins/autogdb/skills "${PKG_DIR}/plugins/autogdb/"
+          cp -r plugins/autogdb/hooks "${PKG_DIR}/plugins/autogdb/"
 
           # Install script and README
-          cp plugins/auto-gdb/install.sh "${PKG_DIR}/"
-          cp plugins/auto-gdb/README.txt "${PKG_DIR}/"
+          cp plugins/autogdb/install.sh "${PKG_DIR}/"
+          cp plugins/autogdb/README.txt "${PKG_DIR}/"
 
           # Create tar.gz
           tar -czvf "${PKG_DIR}.tar.gz" "${PKG_DIR}"
@@ -85,5 +85,5 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: auto-gdb-*.tar.gz
+          files: autogdb-*.tar.gz
           generate_release_notes: true

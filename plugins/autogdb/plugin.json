@@ -1,0 +1,11 @@
+{
+  "name": "autogdb",
+  "description": "GDB-based debugging MCP server with investigation skill for production coredump analysis",
+  "version": "1.0.8",
+  "author": {
+    "name": "yuang-w"
+  },
+  "homepage": "https://github.com/yuang-w/cc-market",
+  "repository": "https://github.com/yuang-w/cc-market",
+  "license": "MIT"
+}
