@@ -1,7 +1,7 @@
 {
   "name": "auto-gdb",
   "description": "GDB-based debugging MCP server with investigation skill for production coredump analysis",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "author": {
     "name": "yuang-w"
   },
